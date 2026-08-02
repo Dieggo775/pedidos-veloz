@@ -1,0 +1,38 @@
+# Estratégia CANARY para o serviço de Pagamentos, por ser o mais crítico do sistema.
+# Ideia: publicar uma nova versão para uma fração pequena do tráfego antes do rollout total.
+# Abordagem simples (sem service mesh): dois Deployments compartilhando o mesmo Service,
+# com proporção de réplicas controlando o % de tráfego (ex.: 4 stable / 1 canary = ~20% canary).
+# Para controle fino por peso (%), usar Istio VirtualService (ver observability/otel/istio-canary-example.yaml).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pagamentos-canary
+  namespace: pedidos-veloz
+  labels:
+    app: pagamentos
+    track: canary
+spec:
+  replicas: 1   # ~20% do tráfego se "pagamentos" (stable) tiver 4 réplicas
+  selector:
+    matchLabels:
+      app: pagamentos
+      track: canary
+  template:
+    metadata:
+      labels:
+        app: pagamentos
+        track: canary
+    spec:
+      containers:
+        - name: pagamentos
+          image: SEU_REGISTRY/pedidos-veloz-pagamentos:canary   # nova versão a validar
+          ports:
+            - containerPort: 3002
+          envFrom:
+            - configMapRef:
+                name: app-config
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3002
+            initialDelaySeconds: 5

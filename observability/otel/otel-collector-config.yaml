@@ -1,0 +1,28 @@
+# Configuração do OpenTelemetry Collector para tracing distribuído
+# Fluxo instrumentado prioritário: criação de pedido -> reserva de estoque -> pagamento
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  batch: {}
+
+exporters:
+  # Jaeger para visualização de traces distribuídos
+  otlp/jaeger:
+    endpoint: jaeger:4317
+    tls:
+      insecure: true
+  logging:
+    loglevel: info
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlp/jaeger, logging]

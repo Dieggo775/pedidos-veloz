@@ -1,0 +1,39 @@
+# EXEMPLO (opcional) — divisão fina de tráfego por peso usando Istio,
+# caso o service mesh seja adotado no lugar da abordagem por réplicas.
+# Requer Istio instalado no cluster.
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: pagamentos
+  namespace: pedidos-veloz
+spec:
+  hosts:
+    - pagamentos
+  http:
+    - route:
+        - destination:
+            host: pagamentos
+            subset: stable
+          weight: 80
+        - destination:
+            host: pagamentos
+            subset: canary
+          weight: 20
+---
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: pagamentos
+  namespace: pedidos-veloz
+spec:
+  host: pagamentos
+  trafficPolicy:
+    tls:
+      mode: ISTIO_MUTUAL   # mTLS entre serviços
+  subsets:
+    - name: stable
+      labels:
+        track: stable
+    - name: canary
+      labels:
+        track: canary

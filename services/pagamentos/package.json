@@ -1,0 +1,13 @@
+{
+  "name": "pagamentos-service",
+  "version": "1.0.0",
+  "description": "Servi\u00e7o de Pagamentos - Pedidos Veloz",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "node test.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}

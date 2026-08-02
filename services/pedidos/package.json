@@ -1,0 +1,16 @@
+{
+  "name": "pedidos-service",
+  "version": "1.0.0",
+  "description": "Servi\u00e7o de Pedidos - Pedidos Veloz",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "node test.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "pg": "^8.11.5",
+    "axios": "^1.7.2",
+    "amqplib": "^0.10.4"
+  }
+}

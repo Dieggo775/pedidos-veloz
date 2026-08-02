@@ -1,0 +1,24 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'api-gateway'
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['api-gateway:3000']
+
+  - job_name: 'pedidos'
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['pedidos:3001']
+
+  - job_name: 'pagamentos'
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['pagamentos:3002']
+
+  - job_name: 'estoque'
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['estoque:3003']
