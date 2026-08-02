@@ -3,8 +3,6 @@
 > Projeto acadêmico de Cloud DevOps: do ambiente local com Docker Compose à operação em
 > Kubernetes, com pipeline de CI/CD, observabilidade e infraestrutura como código.
 
-🎥 **Vídeo pitch:** _[adicionar link do YouTube aqui após gravar]_
-
 ## Arquitetura
 
 ```
