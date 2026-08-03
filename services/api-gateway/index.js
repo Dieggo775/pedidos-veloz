@@ -12,20 +12,22 @@ app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok', service: 'api-gateway' });
 });
 
-// Roteamento para os microsserviços internos
-app.use('/api/pedidos', createProxyMiddleware({
+app.use(createProxyMiddleware({
+  pathFilter: '/api/pedidos',
   target: PEDIDOS_URL,
   changeOrigin: true,
   pathRewrite: { '^/api/pedidos': '/pedidos' }
 }));
 
-app.use('/api/pagamentos', createProxyMiddleware({
+app.use(createProxyMiddleware({
+  pathFilter: '/api/pagamentos',
   target: PAGAMENTOS_URL,
   changeOrigin: true,
   pathRewrite: { '^/api/pagamentos': '/pagamentos' }
 }));
 
-app.use('/api/estoque', createProxyMiddleware({
+app.use(createProxyMiddleware({
+  pathFilter: '/api/estoque',
   target: ESTOQUE_URL,
   changeOrigin: true,
   pathRewrite: { '^/api/estoque': '/estoque' }

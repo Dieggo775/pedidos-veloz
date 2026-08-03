@@ -1,0 +1,107 @@
+name: CI/CD - Pedidos Veloz
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAMESPACE: ${{ github.repository_owner }}
+
+jobs:
+
+  lint-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [api-gateway, pedidos, pagamentos, estoque]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: services/${{ matrix.service }}/package-lock.json
+
+      - name: Instalar dependências
+        working-directory: services/${{ matrix.service }}
+        run: npm install
+
+      - name: Lint (falha o build se houver erro de sintaxe)
+        working-directory: services/${{ matrix.service }}
+        run: node --check index.js
+
+      - name: Testes
+        working-directory: services/${{ matrix.service }}
+        run: npm test --if-present
+
+  build-and-push:
+    needs: lint-test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [api-gateway, pedidos, pagamentos, estoque]
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configurar Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login no registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Definir tags da imagem
+        id: vars
+        run: echo "sha_short=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Build e push da imagem
+        uses: docker/build-push-action@v6
+        with:
+          context: services/${{ matrix.service }}
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE }}/pedidos-veloz-${{ matrix.service }}:${{ steps.vars.outputs.sha_short }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE }}/pedidos-veloz-${{ matrix.service }}:latest
+
+  deploy:
+    needs: build-and-push
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configurar kubeconfig
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > $HOME/.kube/config
+
+      - name: Aplicar manifests
+        run: |
+          kubectl apply -f k8s/namespace.yaml
+          kubectl apply -f k8s/configmaps/
+          kubectl apply -f k8s/secrets/
+          kubectl apply -f k8s/postgres/
+          kubectl apply -f k8s/estoque/
+          kubectl apply -f k8s/pagamentos/
+          kubectl apply -f k8s/pedidos/
+          kubectl apply -f k8s/api-gateway/
+          kubectl apply -f k8s/hpa.yaml
+          kubectl apply -f k8s/network-policy.yaml
+
+      - name: Aguardar rollout
+        run: |
+          kubectl rollout status deployment/api-gateway -n pedidos-veloz --timeout=120s
+          kubectl rollout status deployment/pedidos -n pedidos-veloz --timeout=120s
+          kubectl rollout status deployment/pagamentos -n pedidos-veloz --timeout=120s
+          kubectl rollout status deployment/estoque -n pedidos-veloz --timeout=120s
