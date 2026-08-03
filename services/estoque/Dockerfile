@@ -13,8 +13,8 @@ COPY package*.json ./
 COPY index.js ./
 
 # Usuário não-root (boas práticas de segurança)
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
-USER appuser
+RUN addgroup -g 1001 -S appgroup && adduser -u 1001 -S appuser -G appgroup
+USER 1001
 
 EXPOSE 3003
 HEALTHCHECK --interval=30s --timeout=3s CMD wget -qO- http://localhost:3003/health || exit 1

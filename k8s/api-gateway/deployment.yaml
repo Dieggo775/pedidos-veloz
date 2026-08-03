@@ -24,7 +24,7 @@ spec:
         runAsNonRoot: true
       containers:
         - name: api-gateway
-          image: SEU_REGISTRY/pedidos-veloz-api-gateway:latest
+          image: ghcr.io/dieggo775/pedidos-veloz-api-gateway:latest
           ports:
             - containerPort: 3000
           envFrom:

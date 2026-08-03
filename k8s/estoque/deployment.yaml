@@ -19,7 +19,7 @@ spec:
         runAsNonRoot: true
       containers:
         - name: estoque
-          image: SEU_REGISTRY/pedidos-veloz-estoque:latest   # substituir pela imagem publicada
+          image: ghcr.io/dieggo775/pedidos-veloz-estoque:latest   # substituir pela imagem publicada
           ports:
             - containerPort: 3003
           envFrom:

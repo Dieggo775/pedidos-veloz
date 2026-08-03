@@ -19,7 +19,7 @@ spec:
         runAsNonRoot: true
       containers:
         - name: pedidos
-          image: SEU_REGISTRY/pedidos-veloz-pedidos:latest
+          image: ghcr.io/dieggo775/pedidos-veloz-pedidos:latest
           ports:
             - containerPort: 3001
           envFrom:

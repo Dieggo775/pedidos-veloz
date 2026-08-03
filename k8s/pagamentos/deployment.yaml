@@ -19,7 +19,7 @@ spec:
         runAsNonRoot: true
       containers:
         - name: pagamentos
-          image: SEU_REGISTRY/pedidos-veloz-pagamentos:latest
+          image: ghcr.io/dieggo775/pedidos-veloz-pagamentos:latest
           ports:
             - containerPort: 3002
           envFrom:
