@@ -8,19 +8,21 @@ app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok', service: 'pagamentos' });
 });
 
-// Simula integração com um gateway de pagamento externo
+// Simula integração com um gateway de pagamento externo.
+// Observação: "pedidoId" pode chegar nulo quando o pagamento é processado
+// ANTES da persistência do pedido no banco (o ID só existe após o INSERT).
+// Por isso validamos apenas "valor", que é o dado essencial para processar.
 app.post('/pagamentos', (req, res) => {
   const { pedidoId, valor, metodo } = req.body;
 
-  if (!pedidoId || !valor) {
-    return res.status(400).json({ erro: 'pedidoId e valor são obrigatórios' });
+  if (!valor) {
+    return res.status(400).json({ erro: 'valor é obrigatório' });
   }
 
-  // Regra simplificada: valores acima de 10.000 são recusados (simulação de fraude)
   const aprovado = valor <= 10000;
 
   res.status(aprovado ? 201 : 402).json({
-    pedidoId,
+    pedidoId: pedidoId || null,
     valor,
     metodo: metodo || 'cartao',
     status: aprovado ? 'aprovado' : 'recusado',
