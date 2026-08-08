@@ -12,17 +12,16 @@ processors:
   batch: {}
 
 exporters:
-  # Jaeger para visualização de traces distribuídos
   otlp/jaeger:
     endpoint: jaeger:4317
     tls:
       insecure: true
-  logging:
-    loglevel: info
+  debug:
+    verbosity: detailed
 
 service:
   pipelines:
     traces:
       receivers: [otlp]
       processors: [batch]
-      exporters: [otlp/jaeger, logging]
+      exporters: [otlp/jaeger, debug]

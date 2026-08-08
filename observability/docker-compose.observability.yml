@@ -4,6 +4,7 @@ version: "3.9"
 
 networks:
   pedidos-veloz-net:
+    name: pedidos-veloz_pedidos-veloz-net
     external: true
 
 services:
