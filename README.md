@@ -148,7 +148,6 @@ pedidos-veloz/
 └── docker-compose.yml
 ```
 
-## 8. Documentos do trabalho
+## 8. Link para Video
 
-- [Relatório Teórico](docs/relatorio-teorico.pdf)
-- [Relatório Técnico da Parte Prática](docs/relatorio-tecnico-pratico.pdf)
+- https://youtu.be/XESqfQxlJ3Y
